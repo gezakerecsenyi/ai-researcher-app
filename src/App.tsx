@@ -55,9 +55,13 @@ function App() {
     const [response, setResponse] = useState<string[] | null>(null);
     const [selectedTab, setSelectedTab] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [warning, setWarning] = useState(false);
+    const [error, setError] = useState(false);
     const generate = useCallback(
         () => {
             setLoading(true);
+            setError(false);
+            setWarning(false);
             fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
                 encodeURIComponent(title)
             }&docs=${
@@ -70,11 +74,18 @@ function App() {
                     setLoading(false);
                     setResponse(e.res);
                     setSelectedTab(0);
+                    setError(false);
+
+                    if (!e.res.length) {
+                        setWarning(true);
+                    }
 
                     console.log('got res');
                 })
                 .catch(() => {
                     setResponse(null);
+                    setError(true);
+                    setWarning(false);
                     setLoading(false);
                 });
         },
@@ -88,6 +99,47 @@ function App() {
 
     return (
         <div className='App'>
+            {
+                loading && (
+                    <>
+                        <h2>Loading...</h2>
+                        <p>
+                            Please be patient! It may take some time for the system to calculate, especially if you've
+                            requested many reports.
+                        </p>
+                    </>
+                )
+            }
+
+            {
+                warning && (
+                    <>
+                        <h2>Warning!</h2>
+                        <p>
+                            The server has finished... but returned no reports. This is usually caused by the researcher
+                            program reaching its internally-configured GPT-4 request limit, that's been programmed in to
+                            prevent it getting stuck in infinite loops. This can be modified in the code if an increase
+                            is necessary, but it is often easier to amend your prompt and docs to be clearer and easier
+                            to search.
+                        </p>
+                    </>
+                )
+            }
+
+            {
+                error && (
+                    <>
+                        <h2>Uh-oh... something went wrong.</h2>
+                        <p>
+                            The server returned an error code, indicating it finished early without being able to
+                            compute some or all of your requested reports. This is most likely an indication of an issue
+                            with some internal misconfiguration, ill-set or expired API keys, or external API limits
+                            having been reached.
+                        </p>
+                    </>
+                )
+            }
+
             <h2>
                 Title
             </h2>
