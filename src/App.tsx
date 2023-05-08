@@ -58,7 +58,7 @@ function App() {
     const generate = useCallback(
         () => {
             setLoading(true);
-            fetch(`http://localhost:3200/query?count=${reportCount}&title=${
+            fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
                 encodeURIComponent(title)
             }&docs=${
                 docs.map(e => encodeURIComponent(encodeURIComponent(JSON.stringify(e)))).join(',')
@@ -122,7 +122,8 @@ function App() {
                 Documents to reference
             </h2>
             <p>
-                In addition to the internet, you may provide documents for the AI research assistant to query.
+                In addition to the internet, you may provide documents for the AI research assistant to query. Add at
+                least one document.
             </p>
             <div className='docs'>
                 {
@@ -179,6 +180,7 @@ function App() {
             <input
                 type='range'
                 value={reportCount}
+                disabled={loading}
                 onChange={handleReportCountChange}
                 min={1}
                 max={5}
@@ -187,7 +189,7 @@ function App() {
             <button
                 className='generate'
                 onClick={generate}
-                disabled={loading}
+                disabled={loading || !docs.length}
             >
                 Generate...
             </button>
