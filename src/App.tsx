@@ -62,11 +62,12 @@ function App() {
             setLoading(true);
             setError(false);
             setWarning(false);
-            fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
+            // fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
+            fetch(`http://localhost:3200/query?count=${reportCount}&title=${
                 encodeURIComponent(title)
-            }&docs=${
+            }&${docs.length ? `docs=${
                 docs.map(e => encodeURIComponent(encodeURIComponent(JSON.stringify(e)))).join(',')
-            }&term=${
+            }` : ''}&term=${
                 encodeURIComponent(term)
             }`)
                 .then(e => e.json() as Promise<{ res: string[] }>)
@@ -174,8 +175,7 @@ function App() {
                 Documents to reference
             </h2>
             <p>
-                In addition to the internet, you may provide documents for the AI research assistant to query. Add at
-                least one document.
+                In addition to the internet, you may provide documents for the AI research assistant to query.
             </p>
             <div className='docs'>
                 {
@@ -241,7 +241,7 @@ function App() {
             <button
                 className='generate'
                 onClick={generate}
-                disabled={loading || !docs.length}
+                disabled={loading}
             >
                 Generate...
             </button>
