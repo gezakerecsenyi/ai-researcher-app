@@ -62,14 +62,27 @@ function App() {
             setLoading(true);
             setError(false);
             setWarning(false);
-            // fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
-            fetch(`http://localhost:3200/query?count=${reportCount}&title=${
+            fetch(`http://nickthompson.a2hosted.com/query?count=${reportCount}&title=${
+            // fetch(`http://localhost:3200/query?count=${reportCount}&title=${
                 encodeURIComponent(title)
-            }&${docs.length ? `docs=${
-                docs.map(e => encodeURIComponent(encodeURIComponent(JSON.stringify(e)))).join(',')
-            }` : ''}&term=${
+            }&term=${
                 encodeURIComponent(term)
-            }`)
+            }`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    docs: docs.map(e => encodeURIComponent(JSON.stringify(e))).join(','),
+                }),
+            })
+                .then(e => {
+                    if (e.status !== 200) {
+                        throw new TypeError();
+                    }
+
+                    return e;
+                })
                 .then(e => e.json() as Promise<{ res: string[] }>)
                 .then(e => {
                     setLoading(false);
@@ -80,8 +93,6 @@ function App() {
                     if (!e.res.length) {
                         setWarning(true);
                     }
-
-                    console.log('got res');
                 })
                 .catch(() => {
                     setResponse(null);
@@ -94,7 +105,7 @@ function App() {
             title,
             docs,
             term,
-            reportCount
+            reportCount,
         ],
     );
 
@@ -106,8 +117,7 @@ function App() {
                         <h2>Loading...</h2>
                         <p>
                             Please be patient! It may take some time for the system to calculate, especially if you've
-                            requested many reports.
-                        </p>
+                            requested many reports. </p>
                     </>
                 )
             }
@@ -121,8 +131,7 @@ function App() {
                             program reaching its internally-configured GPT-4 request limit, that's been programmed in to
                             prevent it getting stuck in infinite loops. This can be modified in the code if an increase
                             is necessary, but it is often easier to amend your prompt and docs to be clearer and easier
-                            to search.
-                        </p>
+                            to search. </p>
                     </>
                 )
             }
@@ -135,19 +144,16 @@ function App() {
                             The server returned an error code, indicating it finished early without being able to
                             compute some or all of your requested reports. This is most likely an indication of an issue
                             with some internal misconfiguration, ill-set or expired API keys, or external API limits
-                            having been reached.
-                        </p>
+                            having been reached. </p>
                     </>
                 )
             }
 
             <h2>
-                Title
-            </h2>
+                Title </h2>
             <p>
                 The title of the report - choose this so as to be unambiguous to the AI, rather than necessarily how
-                it may be formatted for a human.
-            </p>
+                it may be formatted for a human. </p>
             <input
                 className='title'
                 value={title}
@@ -157,12 +163,10 @@ function App() {
             />
 
             <h2>
-                Suggested initial search
-            </h2>
+                Suggested initial search </h2>
             <p>
                 Sometimes, it helps to give the AI a bit of a prompt... offer a search term that you would use when
-                beginning research into a project like this.
-            </p>
+                beginning research into a project like this. </p>
             <input
                 className='title'
                 value={term}
@@ -172,11 +176,9 @@ function App() {
             />
 
             <h2>
-                Documents to reference
-            </h2>
+                Documents to reference </h2>
             <p>
-                In addition to the internet, you may provide documents for the AI research assistant to query.
-            </p>
+                In addition to the internet, you may provide documents for the AI research assistant to query. </p>
             <div className='docs'>
                 {
                     docs.map(doc => (
@@ -217,13 +219,11 @@ function App() {
             </div>
 
             <h2>
-                Generate
-            </h2>
+                Generate </h2>
             <p>
                 Use this button to begin the generation process. This may take a few minutes as the AI churns through
                 the research. If the buttons and options become un-disabled but no results appeared, this is an
-                indication of an internal fault.
-            </p>
+                indication of an internal fault. </p>
 
             <label className='report-count'>
                 Report count ({reportCount}) - use this to choose how many reports you wish to generate. Increasing this
@@ -249,13 +249,11 @@ function App() {
                 response && (
                     <div className='responses'>
                         <h2>
-                            Responses
-                        </h2>
+                            Responses </h2>
                         <p>
                             These are all of the responses returned by the AI. These may have undergone slightly different
                             research paths, decided to end researching and begin writing at different points, or otherwise
-                            differ in writing style and word choice. Choose your preferred option!
-                        </p>
+                            differ in writing style and word choice. Choose your preferred option! </p>
 
                         <div className='tab-switcher'>
                             {
