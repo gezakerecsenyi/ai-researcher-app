@@ -52,7 +52,7 @@ function App() {
         ]);
     }, [docs]);
 
-    const [response, setResponse] = useState<string[] | null>(null);
+    const [responses, setResponses] = useState<string[] | null>(null);
     const [selectedTab, setSelectedTab] = useState(0);
     const [loading, setLoading] = useState(false);
     const [warning, setWarning] = useState(false);
@@ -86,7 +86,7 @@ function App() {
                 .then(e => e.json() as Promise<{ res: string[] }>)
                 .then(e => {
                     setLoading(false);
-                    setResponse(e.res);
+                    setResponses(e.res);
                     setSelectedTab(0);
                     setError(false);
 
@@ -95,7 +95,7 @@ function App() {
                     }
                 })
                 .catch(() => {
-                    setResponse(null);
+                    setResponses(null);
                     setError(true);
                     setWarning(false);
                     setLoading(false);
@@ -241,12 +241,12 @@ function App() {
             <button
                 className='generate'
                 onClick={generate}
-                disabled={loading}
+                disabled={loading || !title.length || !term.length}
             >
                 Generate...
             </button>
             {
-                response && (
+                responses && (
                     <div className='responses'>
                         <h2>
                             Responses </h2>
@@ -257,10 +257,11 @@ function App() {
 
                         <div className='tab-switcher'>
                             {
-                                new Array(response.length).fill(0).map((_, i) => (
+                                responses.map((response, i) => (
                                     <button
                                         className={'tab-select' + (selectedTab === i ? ' active' : '')}
                                         onClick={() => setSelectedTab(i)}
+                                        key={response}
                                     >
                                         {i + 1}
                                     </button>
@@ -269,7 +270,9 @@ function App() {
                         </div>
                         <div className='content'>
                             {
-                                response[selectedTab].split('\n').map(e => (<p>{e}</p>))
+                                responses[selectedTab]
+                                    .split('\n')
+                                    .map(e => (<p key={e}>{e}</p>))
                             }
                         </div>
                     </div>
